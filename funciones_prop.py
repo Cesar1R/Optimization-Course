@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 #Algoritmo del metodo de la seccion dorada
 def met_seccion_dorada(fun, xl, xu, tol, N):
@@ -129,3 +130,124 @@ def descenso_max(fun, fun_grad, x0, tol1, tol2, N, Ng, args_sec_dor):
             pts_seq.append(xk.flatten())
 
     return xk, i, False, pts_seq 
+
+
+'''
+Algunas funciones comunes para hacer pruebas y sus gradientes
+'''
+def fun_Himmenlblau(x): 
+    x1 = x[0] 
+    x2 = x[1] 
+
+    return (x1**2 + x2 - 11)**2 + (x1 + x2 **2 -7)**2 
+
+def grad_Himmenlblau(x): 
+    x1 = x[0]
+    x2 = x[1]
+    par1 = 2*(x1**2 + x2 - 11) * (2* x1)  + 2*(x1 + x2**2 - 7) 
+    par2 = 2*(x1**2 + x2 - 11) + 2* (x1 + x2**2 - 7) * (2 * x2)
+    return np.asarray([par1, par2])
+
+def fun_Beale(x):
+    x1 = x[0]
+    x2 = x[1]
+    
+    p1 = (1.5 - x1 + x1 * x2 )**2
+    p2 = (2.25 - x1 + x1 * (x2 **2)) **2
+    p3 = (2.625 - x1 + x1 * (x2 **3)) **2
+
+    return p1 + p2 + p3 
+
+def grad_fun_Beale(x): 
+    x1 = x[0] 
+    x2 = x[1] 
+
+    par_p1_x1 = (1.5 - x1 + x1 * x2 ) * 2. * (-1. + x2) 
+    par_p2_x1 =  (2.25 - x1 + x1 * (x2 **2)) * 2. *  (-1. + x2 **2) 
+    par_p3_x1 = (2.625 - x1 + x1 * (x2 **3)) * 2. * (-1. + x2 **3) 
+
+    grad_x1 = par_p1_x1 + par_p2_x1 + par_p3_x1
+
+
+    par_p1_x2 = (1.5 - x1 + x1 * x2 ) * 2. * (x1) 
+    par_p2_x2 = (2.25 - x1 + x1 * (x2 **2)) * 2. *  (x1 * x2 * 2)   
+    par_p3_x2 = (2.625 - x1 + x1 * (x2 **3)) * 2. * (x1 * x2**2 * 3)
+
+    grad_x2 = par_p1_x2 + par_p2_x2 + par_p3_x2
+
+
+    return np.asarray([grad_x1, grad_x2])
+
+def fun_Rosenbrock (x): 
+    n = len(x) 
+    t_sum = 0.0 
+    for i in range(n-1): 
+        t_sum += 100 * (x[i + 1] - x[i]**2)**2 + (1 - x[i])**2 
+    return t_sum 
+
+def grad_fun_Rosenbrock(x): 
+    n = len(x) 
+    grad = np.array([0. for _ in range(n)])
+
+    grad[0] = -400 *  x[0] * (x[1] - x[0]**2) + 2 * (x[0] - 1)
+        
+    for i in range(1, n-1): 
+        grad[i] = -400 * x[i] * (x[i+1] - x[i]**2) + 2 * (x[i] - 1) + 200*(x[i+1] - x[i]**2)
+
+
+    grad[-1] = 200 * (x[-1] - x[-2]**2)
+    
+    return np.asarray(grad)
+
+
+'''
+Funciones de utilidad para extraer y mostrar los datos 
+'''
+
+
+#Extraccion de datos para la Tarea 3 
+#Regresa un arreglo con los puntos iniciales, la media de los a y de los i
+
+
+def extraccion_Tarea3(arr):
+
+    suc_puntos = []
+    arr_a = []
+    arr_i = [] 
+
+    for p, a, i in arr: 
+        suc_puntos.append(p)
+        arr_a.append(a)
+        arr_i.append(i) 
+
+    media_a = np.mean(arr_a)
+    media_i = np.mean(arr_i)
+
+    return suc_puntos, media_a, media_i
+
+
+
+def trayectorias2D (arr):
+    x = [pt[0] for pt in arr]
+    y = [pt[1] for pt in arr] 
+
+    plt.plot(x, y, marker='o', linestyle='-', color='b')
+    plt.title("Trayectorias en 2D") 
+
+    plt.show()
+
+def load_data (path): 
+    data = np.load(path) 
+    A = data['arr_0']
+    b = data['arr_1'] 
+    return A, b 
+
+def get_condicion(A):
+    A = np.asarray(A) 
+
+    eigenvalores = np.linalg.eigvals(A) 
+
+    eigenvalores.sort()
+
+    return eigenvalores[-1]/eigenvalores[0]
+    
